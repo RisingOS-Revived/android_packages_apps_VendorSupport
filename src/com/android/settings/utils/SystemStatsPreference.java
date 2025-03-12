@@ -76,13 +76,13 @@ public class SystemStatsPreference extends LayoutPreference {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (Intent.ACTION_BATTERY_CHANGED.equals(intent.getAction())) {
-                    updateBatteryInfo(intent);
+                    updateBatteryInfo(intent, context);
                 }
             }
         };
     }
 
-    private void updateBatteryInfo(Intent intent) {
+    private void updateBatteryInfo(Intent intent, Context context) {
         int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
         int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 100);
         float batteryPct = level * 100 / (float) scale;
@@ -98,11 +98,11 @@ public class SystemStatsPreference extends LayoutPreference {
         batteryTemp.setText(String.format("%.1f°C", temp));
 
         if (isFull) {
-            batteryRemaining.setText("Fully charged");
+            batteryRemaining.setText(getContext().getString(R.string.battery_fully_charged));
         } else if (isCharging) {
-            batteryRemaining.setText("Charging");
+            batteryRemaining.setText(getContext().getString(R.string.battery_charging));
         } else {
-            batteryRemaining.setText("Battery discharging");
+            batteryRemaining.setText(getContext().getString(R.string.battery_discharging));
         }
     }
 
@@ -119,10 +119,11 @@ public class SystemStatsPreference extends LayoutPreference {
             String formattedUsed = Formatter.formatFileSize(getContext(), usedBytes);
             String formattedAvailable = Formatter.formatFileSize(getContext(), freeBytes);
             String formattedTotal = Formatter.formatFileSize(getContext(), totalBytes);
+            String storageUsed = getContext().getString(R.string.storage_card_used);
 
             storageCircle.setProgress(percentageUsed);
             storageAvailable.setText(formattedAvailable);
-            storageTotal.setText(String.format("%s / %s used", formattedUsed, formattedTotal));
+            storageTotal.setText(String.format("%s / %s %s", formattedUsed, formattedTotal, storageUsed));
         } catch (Exception e) {
             Log.e(TAG, "Error calculating storage info", e);
             storageCircle.setProgress(0);
