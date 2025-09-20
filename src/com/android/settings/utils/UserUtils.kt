@@ -79,6 +79,7 @@ class UserUtils private constructor(private val context: Context) {
         @Volatile
         private var instance: UserUtils? = null
 
+        @JvmStatic
         fun getInstance(context: Context): UserUtils {
             return instance ?: synchronized(this) {
                 instance ?: UserUtils(context).also { instance = it }
