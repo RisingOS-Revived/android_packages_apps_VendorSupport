@@ -316,7 +316,7 @@ object DeviceUtils {
 
     @JvmStatic
     fun isCurrentlySupportedPixel(): Boolean {
-        val isPixelDevice = SystemProperties.get("ro.product.model").matches(Regex("Pixel [3-9][a-zA-Z ]*"))
+        val isPixelDevice = SystemProperties.get("ro.product.model").matches(Regex("Pixel (3|4|5|6|7|8|9|10)[a-zA-Z ]*"))
         return isPixelDevice
     }
 }
