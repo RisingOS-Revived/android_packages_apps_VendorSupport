@@ -42,8 +42,14 @@ class HighlightPrefUtils {
         }
 
         private fun launchActivity(context: Context, activityName: String) {
+            val fullClassName = if (activityName.contains(".")) {
+                activityName
+            } else {
+                "$PACKAGE_NAME$ACTIVITY_PREFIX$activityName"
+            }
+
             val intent = Intent().setComponent(
-                ComponentName(PACKAGE_NAME, "$PACKAGE_NAME$ACTIVITY_PREFIX$activityName")
+                ComponentName(PACKAGE_NAME, fullClassName)
             )
             context.startActivity(intent)
         }
