@@ -80,11 +80,19 @@ class LauncherIconPreference @JvmOverloads constructor(
         val container = holder.findViewById(R.id.launcher_icons_container) as LinearLayout
         container.removeAllViews()
 
-        val accentColor = com.google.android.material.color.MaterialColors.getColor(
-            context,
-            com.google.android.material.R.attr.colorPrimary,
-            context.getColor(android.R.color.system_accent1_500)
-        )
+        val accentColor = run {
+            val typedValue = android.util.TypedValue()
+            val resolved = context.theme.resolveAttribute(
+                com.android.internal.R.attr.colorAccent,
+                typedValue,
+                true
+            )
+            if (resolved) {
+                typedValue.data
+            } else {
+                context.getColor(android.R.color.system_accent1_500)
+            }
+        }
 
         launcherData.forEach { launcher ->
             val itemView = View.inflate(context, R.layout.launcher_icon_item, null)

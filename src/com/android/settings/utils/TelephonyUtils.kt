@@ -18,13 +18,12 @@ package com.android.settings.utils
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
-import android.os.PersistableBundle
 import android.telephony.CarrierConfigManager
 import android.telephony.TelephonyManager
 import android.text.TextUtils
 import android.util.Log
+import androidx.annotation.NonNull
 
-import com.android.internal.telephony.PhoneConstants
 import com.android.internal.telephony.RILConstants
 
 /**
@@ -46,9 +45,9 @@ object TelephonyUtils {
     /**
      * Returns whether the device is voice-capable (meaning, it is also a phone).
      */
-    fun isVoiceCapable(context: Context): Boolean {
-        val telephony = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager?
-        return telephony?.isVoiceCapable == true
+    fun isVoiceCapable(@NonNull context: Context): Boolean {
+        val telephony = context.getSystemService(TelephonyManager::class.java)
+        return telephony != null && telephony.isVoiceCapable
     }
 
     fun getNetworkModeString(context: Context, networkMode: Int, subId: Int): String? {
@@ -58,7 +57,7 @@ object TelephonyUtils {
             TelephonyManager.from(context).getCurrentPhoneType(subId),
             show4GForLTE(context),
             isSupportTdscdma(context, subId),
-            isGlobalCDMA(context, subId, isLteOnCdma(context, subId)),
+            isGlobalCDMA(context, subId),
             isWorldMode(context)
         )
     }
@@ -128,7 +127,7 @@ object TelephonyUtils {
                 "config_support_tdscdma",
                 "bool", "com.android.phone"
             )
-            if (phoneResources.getBoolean(id)) {
+            if (id > 0 && phoneResources.getBoolean(id)) {
                 return true
             }
 
@@ -162,20 +161,16 @@ object TelephonyUtils {
                 "config_show4GForLTE",
                 "bool", "com.android.systemui"
             )
-            con.resources.getBoolean(id)
+            id > 0 && con.resources.getBoolean(id)
         } catch (e: PackageManager.NameNotFoundException) {
             false
         }
     }
 
-    private fun isGlobalCDMA(context: Context, subId: Int, isLteOnCdma: Boolean): Boolean {
-        val carrierConfigMan = context.getSystemService(Context.CARRIER_CONFIG_SERVICE) as CarrierConfigManager
-        val carrierConfig = carrierConfigMan.getConfigForSubId(subId)
-        return isLteOnCdma && carrierConfig?.getBoolean(CarrierConfigManager.KEY_SHOW_CDMA_CHOICES_BOOL) == true
-    }
-
-    private fun isLteOnCdma(context: Context, subId: Int): Boolean {
-        return TelephonyManager.from(context).getLteOnCdmaMode(subId) == PhoneConstants.LTE_ON_CDMA_TRUE
+    private fun isGlobalCDMA(context: Context, subId: Int): Boolean {
+        val carrierConfigMan = context.getSystemService(Context.CARRIER_CONFIG_SERVICE) as CarrierConfigManager?
+        val carrierConfig = carrierConfigMan?.getConfigForSubId(subId)
+        return carrierConfig?.getBoolean(CarrierConfigManager.KEY_SHOW_CDMA_CHOICES_BOOL) == true
     }
 
     private fun isWorldMode(context: Context): Boolean {

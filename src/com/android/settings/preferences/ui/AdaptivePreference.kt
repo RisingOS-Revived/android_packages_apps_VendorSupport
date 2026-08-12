@@ -17,23 +17,27 @@ package com.android.settings.preferences.ui
 
 import android.content.Context
 import android.content.res.TypedArray
+import android.telephony.TelephonyManager
 import androidx.preference.Preference
 import android.util.AttributeSet
 import com.android.settings.R
-
-import com.android.settings.network.SubscriptionUtil
 
 import com.android.settings.utils.AdaptivePreferenceUtils
 
 class AdaptivePreference(context: Context, attrs: AttributeSet?) : Preference(context, attrs) {
 
     init {
-        if ("device_model" == key && !SubscriptionUtil.isSimHardwareVisible(context)) {
+        if ("device_model" == key && !hasSimHardware(context)) {
             layoutResource = R.layout.top_level_preference_top_card
         }
         val layoutRes = AdaptivePreferenceUtils.getLayoutResourceId(context, attrs)
         if (layoutRes != -1) {
             layoutResource = layoutRes
         }
+    }
+
+    private fun hasSimHardware(context: Context): Boolean {
+        val tm = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager?
+        return tm != null && tm.phoneCount > 0
     }
 }

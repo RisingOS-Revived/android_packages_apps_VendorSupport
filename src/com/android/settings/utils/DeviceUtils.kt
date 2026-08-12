@@ -31,6 +31,7 @@ import android.hardware.fingerprint.FingerprintManager
 import android.nfc.NfcAdapter
 import android.os.Build
 import android.os.SystemProperties
+import android.os.Vibrator
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import android.text.TextUtils
@@ -178,6 +179,12 @@ object DeviceUtils {
             org.lineageos.platform.internal.R.integer
                 .config_deviceSupportsKeyboardBrightnessControl
         ) != 0
+    }
+
+    @JvmStatic
+    fun hasVibrator(context: Context): Boolean {
+        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+        return vibrator != null && vibrator.hasVibrator()
     }
 
     fun isPackageInstalled(context: Context, pkg: String?, ignoreState: Boolean): Boolean {
