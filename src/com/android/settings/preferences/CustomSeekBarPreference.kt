@@ -339,10 +339,12 @@ open class CustomSeekBarPreference : Preference, SeekBar.OnSeekBarChangeListener
         }
     }
 
-    fun setValue(newValue: Int) {
-        mValue = getLimitedValue(newValue)
-        mSeekBar.progress = getSeekValue(mValue)
-    }
+    var value: Int
+        get() = mValue
+        set(newValue) {
+            mValue = getLimitedValue(newValue)
+            mSeekBar.progress = getSeekValue(mValue)
+        }
 
     fun setValue(newValue: Int, update: Boolean) {
         val limitedValue = getLimitedValue(newValue)
@@ -354,13 +356,32 @@ open class CustomSeekBarPreference : Preference, SeekBar.OnSeekBarChangeListener
         }
     }
 
-    fun setMax(max: Int) {
-        mMaxValue = max
+    fun setMin(min: Int) {
+        mMinValue = min
+        if (mMaxValue < mMinValue) {
+            mMaxValue = mMinValue
+        }
+
+        mValue = getLimitedValue(mValue)
+
         mSeekBar.max = getSeekValue(mMaxValue)
+        mSeekBar.progress = getSeekValue(mValue)
     }
 
-    fun getValue(): Int {
-        return mValue
+    fun setMax(max: Int) {
+        mMaxValue = max
+        if (mMaxValue < mMinValue) {
+            mMaxValue = mMinValue
+        }
+
+        mValue = getLimitedValue(mValue)
+
+        mSeekBar.max = getSeekValue(mMaxValue)
+        mSeekBar.progress = getSeekValue(mValue)
+    }
+
+    fun setUpdatesContinuously(continuous: Boolean) {
+        mContinuousUpdates = continuous
     }
 
     fun refresh(newValue: Int) {

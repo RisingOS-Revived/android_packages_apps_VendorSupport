@@ -60,6 +60,7 @@ open class ColorPickerPreference : Preference, ColorPickerDialog.OnColorChangedL
         private const val ANDROIDNS = "http://schemas.android.com/apk/res/android"
         private const val SETTINGS_NS = "http://schemas.android.com/apk/res/com.android.settings"
 
+        @JvmStatic
         fun convertToRGB(color: Int): String {
             var red = Integer.toHexString(Color.red(color))
             var green = Integer.toHexString(Color.green(color))
@@ -86,6 +87,7 @@ open class ColorPickerPreference : Preference, ColorPickerDialog.OnColorChangedL
          * @param color
          * @author Unknown
          */
+        @JvmStatic
         fun convertToARGB(color: Int): String {
             var alpha = Integer.toHexString(Color.alpha(color))
             var red = Integer.toHexString(Color.red(color))
@@ -118,6 +120,7 @@ open class ColorPickerPreference : Preference, ColorPickerDialog.OnColorChangedL
          * @throws NumberFormatException
          * @author Unknown
          */
+        @JvmStatic
         @Throws(NumberFormatException::class)
         fun convertToColorInt(argb: String): Int {
             var argbString = argb
