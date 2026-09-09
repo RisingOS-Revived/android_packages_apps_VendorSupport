@@ -16,8 +16,7 @@
 
 package com.android.settings.preferences
 
-import android.os.UserHandle.CURRENT
-import android.os.UserHandle.USER_CURRENT
+import android.os.UserHandle
 
 import android.content.Context
 import android.content.om.OverlayManager
@@ -43,11 +42,15 @@ class OverlaySwitchPreference : SelfRemovingSwitchPreference {
 
     private val mDisableKey: String?
     private val mDKeyNightOnly: Boolean
+    private val mUserId: Int
+    private val mUserHandle: UserHandle
     private val mOverlayManager: OverlayManager?
 
     constructor(context: Context, attrs: AttributeSet?, defStyle: Int) : super(context, attrs, defStyle) {
         mDisableKey = attrs?.getAttributeValue(SETTINGSNS, DKEY)
         mDKeyNightOnly = attrs?.getAttributeBooleanValue(SETTINGSNS, DKEY_NIGHT_ONLY, false) ?: false
+        mUserId = UserHandle.myUserId()
+        mUserHandle = UserHandle.of(mUserId)
         mOverlayManager = context.getSystemService(OverlayManager::class.java)
         init(context, attrs)
     }
@@ -55,6 +58,8 @@ class OverlaySwitchPreference : SelfRemovingSwitchPreference {
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
         mDisableKey = attrs?.getAttributeValue(SETTINGSNS, DKEY)
         mDKeyNightOnly = attrs?.getAttributeBooleanValue(SETTINGSNS, DKEY_NIGHT_ONLY, false) ?: false
+        mUserId = UserHandle.myUserId()
+        mUserHandle = UserHandle.of(mUserId)
         mOverlayManager = context.getSystemService(OverlayManager::class.java)
         init(context, attrs)
     }
@@ -75,7 +80,7 @@ class OverlaySwitchPreference : SelfRemovingSwitchPreference {
     override fun getBoolean(key: String, defaultValue: Boolean): Boolean {
         if (mOverlayManager == null) return false
         val overlayId = getOverlayID(this.key) ?: return false
-        val info = mOverlayManager.getOverlayInfo(overlayId, CURRENT)
+        val info = mOverlayManager.getOverlayInfo(overlayId, mUserHandle)
         return info?.isEnabled ?: false
     }
 
@@ -83,20 +88,20 @@ class OverlaySwitchPreference : SelfRemovingSwitchPreference {
         if (mOverlayManager == null) return
         val overlayId = getOverlayID(this.key) ?: return
         val transaction = OverlayManagerTransaction.Builder()
-        transaction.setEnabled(overlayId, value, USER_CURRENT)
+        transaction.setEnabled(overlayId, value, mUserId)
         if (mDisableKey != null && mDisableKey.isNotEmpty()) {
             val disableOverlayId = getOverlayID(mDisableKey) ?: return
             if (mDKeyNightOnly) {
                 val isNight = (context.resources.configuration.uiMode
                         and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
                 if (isNight) {
-                    transaction.setEnabled(disableOverlayId, !value, USER_CURRENT)
+                    transaction.setEnabled(disableOverlayId, !value, mUserId)
                 } else {
                     // always enabled in day
-                    transaction.setEnabled(disableOverlayId, true, USER_CURRENT)
+                    transaction.setEnabled(disableOverlayId, true, mUserId)
                 }
             } else {
-                transaction.setEnabled(disableOverlayId, !value, USER_CURRENT)
+                transaction.setEnabled(disableOverlayId, !value, mUserId)
             }
         }
         try {
@@ -118,7 +123,7 @@ class OverlaySwitchPreference : SelfRemovingSwitchPreference {
                 val value = name.split(":")
                 val pkgName = value[0]
                 val overlayName = value[1]
-                val infos = mOverlayManager.getOverlayInfosForTarget(pkgName, CURRENT)
+                val infos = mOverlayManager.getOverlayInfosForTarget(pkgName, mUserHandle)
                 for (info in infos) {
                     if (overlayName == info.overlayName) {
                         return info.overlayIdentifier
@@ -128,7 +133,7 @@ class OverlaySwitchPreference : SelfRemovingSwitchPreference {
                 return null
             }
             // package with only one overlay
-            val info = mOverlayManager.getOverlayInfo(name, CURRENT)
+            val info = mOverlayManager.getOverlayInfo(name, mUserHandle)
             return if (info != null) {
                 info.overlayIdentifier
             } else {
