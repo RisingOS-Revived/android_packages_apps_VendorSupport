@@ -310,6 +310,10 @@ object DeviceUtils {
         return blurSupportedSysProp && !blurDisabledSysProp && ActivityManager.isHighEndGfx()
     }
 
+    fun hasFace(context: Context): Boolean {
+        return context.packageManager.hasSystemFeature(PackageManager.FEATURE_FACE)
+    }
+
     /**
      * Checks if the device has udfps
      * @param context context for getting FingerprintManager
